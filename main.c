@@ -30,13 +30,8 @@ int main()
         memset(array, 0, sizeof(char) * 255 * 255);
         printf(">>>");
         readline(user_input);
-        printf("You entered: %s\n", user_input);
         parse_input(user_input, array, &element_num);
 
-        for (int i = 0; i < element_num; i++)
-        {
-            printf("%s\n", array[i]);
-        }
         if (element_num == 0)
         {
             // enter nothing
@@ -44,7 +39,6 @@ int main()
         }
         // first element is the command
         cmd = array[0];
-        printf("cmd: %s\n", cmd);
 
         if (strcmp(cmd, CMD_EXIT) == 0)
         {

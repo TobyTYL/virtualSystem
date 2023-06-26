@@ -61,10 +61,11 @@ bool mkdir_fs(FileSystem *fs, char *const name)
     {
         return false;
     }
+
     // 当前目录节点假设为空
     if (fs->current->contents == NULL)
     {
-        fs->current = obj;
+        fs->current->contents = obj;
         return true;
     }
     Object *p = fs->current->contents;
@@ -75,4 +76,16 @@ bool mkdir_fs(FileSystem *fs, char *const name)
     p->next = obj;
 
     return true;
+}
+
+void ls_fs(FileSystem *fs)
+{
+    Object *p = fs->current->contents;
+    while (p != NULL)
+    {
+
+        printf("%s ", p->name);
+        p = p->next;
+    }
+    printf("\n");
 }

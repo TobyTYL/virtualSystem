@@ -37,6 +37,7 @@ typedef struct filesystem_s
 
 bool init_fs(FileSystem *fs);
 bool mkdir_fs(FileSystem *fs, char *const name);
+void ls_fs(FileSystem *fs);
 
 Object *search_object(Object *current, char *const name, enum object_type type);
 #endif
