@@ -22,6 +22,8 @@ int main()
     char array[255][255];
     int element_num = 0;
     char *cmd;
+    fs_status status;
+
     while (1)
     {
         element_num = 0;
@@ -64,10 +66,17 @@ int main()
         else if (strcmp(cmd, CMD_LS) == 0)
         {
             // ls
+            ls_fs(&fs);
         }
         else if (strcmp(cmd, CMD_MKDIR) == 0)
         {
-            // mkdir
+            // if it looks like "mkdir "
+            if (element_num < 2)
+            {
+                printf("mkdir: missing operand\n");
+                continue;
+            }
+            status = mkdir_fs(&fs, array[1]);
         }
         else if (strcmp(cmd, CMD_RM) == 0)
         {

@@ -10,6 +10,13 @@ enum object_type
     TYPE_FILE = 1,
     TYPE_DIR
 };
+typedef enum fs_error
+{
+    SUCCESS = 0,
+    FAILED,
+    EXISTED,
+    NOT_FOUND,
+} fs_status;
 
 typedef struct object_s
 {
@@ -18,6 +25,7 @@ typedef struct object_s
     size_t size;
 
     struct object_s *contents;
+    struct object_s *next;
 
 } Object;
 
@@ -28,5 +36,7 @@ typedef struct filesystem_s
 } FileSystem;
 
 bool init_fs(FileSystem *fs);
-void mkdir_fs(FileSystem *fs, char *const name);
+bool mkdir_fs(FileSystem *fs, char *const name);
+
+Object *search_object(Object *current, char *const name, enum object_type type);
 #endif
