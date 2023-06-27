@@ -1,98 +1,119 @@
+
 #include <stdlib.h>
 #include <stdio.h>
-#include "filesystem.h"
 #include <string.h>
+
+#include "filesystem.h"
 #include "utils.h"
-#include "cil.h"
+#include "cli.h"
 
 void parse_input(char *const input, char (*array)[255], int *number);
+void usage();
 
 int main()
 {
-    FileSystem fs;
-    init_fs(&fs);
-    if (!init_fs(&fs))
-    {
-        fprintf(stderr, "Error: malloc failed in initFileSystem\n");
-        exit(EXIT_FAILURE);
-    }
-    printf("Welcome to the file system!\n");
+	FileSystem fs;
+	if (!init_fs(&fs))
+	{
+		fprintf(stderr, "Error: init_fs()\n");
+		exit(1);
+	}
 
-    char user_input[255];
-    char array[255][255];
-    int element_num = 0;
-    char *cmd;
-    fs_status status;
+	char user_input[BUFFER_MAX];
+	char array[255][255];
+	int element_num = 0;
+	char *cmd;
+	while (1)
+	{
+		element_num = 0;
+		memset(array, 0, 255 * 255);
 
-    while (1)
-    {
-        element_num = 0;
-        memset(array, 0, sizeof(char) * 255 * 255);
-        printf(">>>");
-        readline(user_input);
-        parse_input(user_input, array, &element_num);
+		printf(PROMPT);
+		// a b
+		readline(user_input);
 
-        if (element_num == 0)
-        {
-            // enter nothing
-            continue;
-        }
-        // first element is the command
-        cmd = array[0];
+		parse_input(user_input, array, &element_num);
 
-        if (strcmp(cmd, CMD_EXIT) == 0)
-        {
-            exit(0);
-            // exit
-        }
-        else if (strcmp(cmd, CMD_CD) == 0)
-        {
-            // cd
-        }
-        else if (strcmp(cmd, CMD_ECHO) == 0)
-        {
-            // echo
-        }
-        else if (strcmp(cmd, CMD_HELP) == 0)
-        {
-            // help
-        }
-        else if (strcmp(cmd, CMD_LS) == 0)
-        {
-            // ls
-            ls_fs(&fs);
-        }
-        else if (strcmp(cmd, CMD_MKDIR) == 0)
-        {
-            // if it looks like "mkdir "
-            if (element_num < 2)
-            {
-                printf("mkdir: missing operand\n");
-                continue;
-            }
-            status = mkdir_fs(&fs, array[1]);
-        }
-        else if (strcmp(cmd, CMD_RM) == 0)
-        {
-            // RM
-        }
-        else
-        {
-            printf("%s: Command not found\n", cmd);
-        }
-    }
+		if (element_num == 0)
+		{
+			// 
+			continue;
+		}
+
+		cmd = array[0];
+
+		if (strcmp(cmd, CMD_EXIT) == 0)
+		{
+			// exit
+			exit(0);
+		}
+		else if (strcmp(cmd, CMD_CD) == 0)
+		{
+			// cd
+			if (element_num == 2)
+			{
+				if (!cd_fs(&fs, array[1]))
+				{
+					printf("Error: cd");
+				}
+			}
+		}
+		else if (strcmp(cmd, CMD_ECHO) == 0)
+		{
+			// echo
+			if (element_num < 2)
+			{
+				printf("Error: echo");
+				continue;
+			}
+			echo_fs(&fs, array[1]);
+		}
+		else if (strcmp(cmd, CMD_HELP) == 0)
+		{
+			usage();
+		}
+		else if (strcmp(cmd, CMD_LS) == 0)
+		{
+
+			ls_fs(&fs);
+		}
+		else if (strcmp(cmd, CMD_MKDIR) == 0)
+		{
+			// mkdir
+			if (element_num < 2)
+			{
+				printf("Error: mkdir\n");
+				continue;
+			}
+
+			mkdir_fs(&fs, array[1]);
+		}
+		else if (strcmp(cmd, CMD_PWD) == 0)
+		{
+		}
+		else if (strcmp(cmd, CMD_RM) == 0)
+		{
+		}
+		else
+		{
+			printf("%s: command not found.\n", cmd);
+		}
+	}
 }
 
-// slice the input into tokens
 void parse_input(char *const input, char (*array)[255], int *number)
 {
 
-    char *token = strtok(input, " ");
-    // strcpy(array[*number++], token);
+	char *token = strtok(input, " ");
+	// 
+	while (token != NULL)
+	{
+		strcpy(array[(*number)++], token);
+		token = strtok(NULL, " ");
+	}
+}
 
-    while (token != NULL)
-    {
-        strcpy(array[(*number)++], token);
-        token = strtok(NULL, " ");
-    }
+void usage()
+{
+	printf("Virtual File System 0.1\n");
 }
