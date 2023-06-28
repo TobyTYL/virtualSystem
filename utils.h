@@ -6,9 +6,6 @@
 
 size_t readline(char* buffer);
 
-
-
-
 #endif
 
 

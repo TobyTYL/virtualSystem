@@ -2,6 +2,7 @@
 #define __CLI_H_
 
 
+// Command line 
 #define CMD_EXIT	"exit"
 #define CMD_CD		"cd"
 #define CMD_PWD		"pwd"
@@ -12,8 +13,7 @@
 #define CMD_HELP	"help"
 
 
-
-
+// Prefix
 #define PROMPT		"$"
 #define USERNAME	"toby-tao"
 #define MACHINE		"macbook-pro"

@@ -3,51 +3,54 @@
 
 #include "filesystem.h"
 
-Object* create_object(
-	char* const name,
+Object *create_object(
+	char *const name,
 	enum object_type type,
 	size_t size,
-	struct object_s* contents) {
-
-
-	Object* object;
-	object = (Object*)malloc(sizeof(Object));
-	if (object == NULL) {
+	Object *contents)
+{
+	Object *obj;
+	// linklist
+	obj = (Object *)malloc(sizeof(Object));
+	if (obj == NULL)
+	{
 		return NULL;
 	}
 
-	strcpy(object->name, name);
-	object->type = type;
-	object->size = size;
+	strcpy(obj->name, name);
+	obj->type = type;
+	obj->size = size;
 
-	object->contents = contents;
-	object->next = NULL;
-	object->parent = NULL;
-
-	return object;
+	obj->contents = contents;
+	obj->next = NULL;
+	obj->parent = NULL;
+	return obj;
 }
 
-
-bool init_fs(FileSystem* fs) {
+bool init_fs(FileSystem *fs)
+{
 
 	fs->root = create_object("", TYPE_DIR, 0, NULL);
 
-	if (fs->root == NULL) {
+	if (fs->root == NULL)
+	{
 		return false;
 	}
-
 
 	fs->current = fs->root;
 
 	return true;
 }
 
-Object* search_object(Object* current, char* const name, enum object_type type) {
+Object *search_object(Object *current, char *const name, enum object_type type)
+{
 
-	Object* p = current->contents;
+	Object *p = current->contents;
 
-	while (p != NULL) {
-		if (p->type == type && strcmp(p->name, name) == 0) {
+	while (p != NULL)
+	{
+		if (p->type == type && strcmp(p->name, name) == 0)
+		{
 			break;
 		}
 
@@ -57,32 +60,34 @@ Object* search_object(Object* current, char* const name, enum object_type type) 
 	return p;
 }
 
+bool mkdir_fs(FileSystem *fs, char *const name)
+{
 
-
-bool mkdir_fs(FileSystem* fs, char* const name) {
-
-	if (search_object(fs->current, name, TYPE_DIR) != NULL) {
+	if (search_object(fs->current, name, TYPE_DIR) != NULL)
+	{
 		return false;
 	}
 
-
-	Object* object = create_object(name, TYPE_DIR, 0, NULL);
-	if (object == NULL) {
+	Object *object = create_object(name, TYPE_DIR, 0, NULL);
+	if (object == NULL)
+	{
 		return false;
 	}
 
-	//���¸��ڵ�
+	//
 	object->parent = fs->current;
 
-	//�ļ���Ϊ��
-	if (fs->current->contents == NULL) {
+	//
+	if (fs->current->contents == NULL)
+	{
 		fs->current->contents = object;
 		return true;
 	}
 
-	Object* p = fs->current->contents;
+	Object *p = fs->current->contents;
 
-	while (p->next != NULL) {
+	while (p->next != NULL)
+	{
 		p = p->next;
 	}
 
@@ -91,113 +96,142 @@ bool mkdir_fs(FileSystem* fs, char* const name) {
 	return true;
 }
 
-void ls_fs(FileSystem* fs) {
+void ls_fs(FileSystem *fs)
+{
 
-	Object* p = fs->current->contents;
+	Object *p = fs->current->contents;
 
-	while (p != NULL){
-		if (p->type == TYPE_DIR) {
-			printf("\033[1;32;40m%s\033[0m\t", p->name);
-			
+	/*
+	for (int i = 31; i < 38; i++)
+		{
+			printf("\033[%dm 123456\n",i);
+			//printf("\033[31m 456789\n");
 		}
-		else {
+
+	*/
+
+	while (p != NULL)
+	{
+		if (p->type == TYPE_DIR)
+		{
+			printf("\033[1;32m%s\033[0m\t", p->name);
+		}
+		else
+		{
 			printf("%s\t", p->name);
 		}
-		
+
 		p = p->next;
 
-		if (p == NULL) {
+		if (p == NULL)
+		{
 			printf("\n");
 		}
 	}
-
 }
 
+bool echo_fs(FileSystem *fs, char *const name)
+{
 
-
-bool echo_fs(FileSystem* fs, char* const name) {
-
-	if (search_object(fs->current, name, TYPE_FILE) != NULL) {
+	if (search_object(fs->current, name, TYPE_FILE) != NULL)
+	{
 		return false;
 	}
 
-
-	Object* object = create_object(name, TYPE_FILE, 0, NULL);
-	if (object == NULL) {
+	Object *object = create_object(name, TYPE_FILE, 0, NULL);
+	if (object == NULL)
+	{
 		return false;
 	}
 
-	//�ļ���Ϊ��
-	if (fs->current->contents == NULL) {
+	//
+	if (fs->current->contents == NULL)
+	{
 		fs->current->contents = object;
 		return true;
 	}
 
-	Object* p = fs->current->contents;
+	Object *p = fs->current->contents;
 
-	while (p->next != NULL) {
+	while (p->next != NULL)
+	{
 		p = p->next;
 	}
-	
+
 	object->parent = fs->current;
 	p->next = object;
 
 	return true;
 }
 
+bool cd_fs(FileSystem *fs, char *const path)
+{
 
-bool cd_fs(FileSystem* fs, char* const path) {
-
-	if (path[0] == '\0') {
+	// fail
+	if (path[0] == '\0')
+	{
 		return true;
 	}
 
 	bool abspath = false;
 
-	if (path[0] == '/') {
+	if (path[0] == '/')
+	{
 		abspath = true;
 	}
 
-	char* token = strtok(path, "/");
+	// cd 后面的路径或者文件
+	char *token = strtok(path, "/");
 
-	Object* tmp;
+	Object *tmp;
 
-	if (abspath) {
+	// 如果开头为/，那么就是绝对路径
+	if (abspath)
+	{
 		tmp = fs->root;
 	}
-	else {
+	// 否则为当前路径
+	else
+	{
 		tmp = fs->current;
 	}
 
-	
-	while (token != NULL) {
-		
-		if (strcmp(token, ".") == 0) {
-			//pass
-		}
-		else if (strcmp(token, "..") == 0) {
+	while (token != NULL)
+	{
 
-			if (tmp->parent == NULL) {
-				
+		// if it is ".", do nothing
+		if (strcmp(token, ".") == 0)
+		{
+			// pass
+		}
+		// if it is "..", go to parent
+		else if (strcmp(token, "..") == 0)
+		{
+			// if the current is root, return false
+			if (tmp->parent == NULL)
+			{
 				return false;
 			}
-
+			// otherwise just point it to its parent
 			tmp = tmp->parent;
-
-			
 		}
-		else if (token[0] == '\0') {
-			//pass
-		}
-		else {
 
-			Object* obj = search_object(tmp, token, TYPE_DIR);
-			if (obj == NULL) {
+		// if it is "", do nothing
+		else if (token[0] == '\0')
+		{
+			// pass
+		}
+
+		// if it is a direction, return false
+		else
+		{
+			Object *obj = search_object(tmp, token, TYPE_DIR);
+			if (obj == NULL)
+			{
 				return false;
 			}
 
 			tmp = obj;
-			
 		}
 
 		token = strtok(NULL, "/");
@@ -207,78 +241,86 @@ bool cd_fs(FileSystem* fs, char* const path) {
 	return true;
 }
 
-
-void pwd_fs(FileSystem* fs,char* path) {
+void pwd_fs(FileSystem *fs, char *path)
+{
 
 	char array[255][255];
 	int count = 0;
 
-	Object* tmp = fs->current;
+	Object *tmp = fs->current;
 
-	while (tmp->parent != NULL) {
+	while (tmp->parent != NULL)
+	{
 
 		strcpy(array[count++], tmp->name);
 
 		tmp = tmp->parent;
-
 	}
 
 	strcat(path, "/");
-	for (int i = count - 1; i >= 0; i--) {
+	for (int i = count - 1; i >= 0; i--)
+	{
 		strcat(path, array[i]);
-		if (i != 0) {
+		if (i != 0)
+		{
 			strcat(path, "/");
 		}
 	}
 }
 
+void remove_object(Object *obj)
+{
 
-void remove_object(Object* obj) {
-
-	if (obj->type == TYPE_FILE) {
+	if (obj->type == TYPE_FILE)
+	{
 		free(obj);
 		return;
 	}
-	else if (obj->type == TYPE_DIR) {
+	else if (obj->type == TYPE_DIR)
+	{
 
-		Object* p = obj->contents;
+		Object *p = obj->contents;
 
-		while (p != NULL) {
+		while (p != NULL)
+		{
 
 			remove_object(p);
 
 			p = p->next;
 		}
 		obj->contents = NULL;
-
 	}
 }
 
-
-bool rm_fs(FileSystem* fs, char* const name) {
+bool rm_fs(FileSystem *fs, char *const name)
+{
 
 	bool removed = false;
-	Object* p = fs->current->contents;
-	Object* prev = NULL;
-	while (p != NULL) {
+	Object *p = fs->current->contents;
+	Object *prev = NULL;
+	while (p != NULL)
+	{
 
-		if (strcmp(p->name, name) == 0) {
-			
-			if (prev == NULL) {
+		if (strcmp(p->name, name) == 0)
+		{
+
+			if (prev == NULL)
+			{
 				fs->current->contents = p->next;
 				remove_object(p);
 				p = fs->current->contents;
-				//prev = NULL;
+				// prev = NULL;
 			}
-			else {
+			else
+			{
 				prev->next = p->next;
 				remove_object(p);
 				p = prev->next;
 			}
 			removed = true;
-
 		}
-		else {
+		else
+		{
 			prev = p;
 			p = p->next;
 		}
