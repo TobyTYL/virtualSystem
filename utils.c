@@ -1,15 +1,19 @@
 #include "utils.h"
 
 // buffer is an array of 255 chars
-size_t readline(char* buffer) {
+// readline is a function that
+size_t readline(char *buffer)
+{
 
 	size_t size = 0;
 	char c;
 	// 获取一个字符
 	c = getchar();
 
-	while (c!='\n') {
-		if (c == EOF) {
+	while (c != '\n')
+	{
+		if (c == EOF)
+		{
 			break;
 		}
 		// save the user input into the buffer
@@ -21,4 +25,3 @@ size_t readline(char* buffer) {
 	buffer[size] = '\0';
 	return size;
 }
-

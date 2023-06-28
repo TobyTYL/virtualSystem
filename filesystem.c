@@ -44,7 +44,7 @@ bool init_fs(FileSystem *fs)
 
 Object *search_object(Object *current, char *const name, enum object_type type)
 {
-
+	// current is an object type
 	Object *p = current->contents;
 
 	while (p != NULL)
@@ -74,10 +74,10 @@ bool mkdir_fs(FileSystem *fs, char *const name)
 		return false;
 	}
 
-	//
+	// 把要添加的文件夹的父亲指向当前的文件夹
 	object->parent = fs->current;
 
-	//
+	// If current is empty folder, add the new folder to the current directory
 	if (fs->current->contents == NULL)
 	{
 		fs->current->contents = object;
@@ -86,6 +86,7 @@ bool mkdir_fs(FileSystem *fs, char *const name)
 
 	Object *p = fs->current->contents;
 
+	// why
 	while (p->next != NULL)
 	{
 		p = p->next;
@@ -144,13 +145,14 @@ bool echo_fs(FileSystem *fs, char *const name)
 		return false;
 	}
 
-	//
+	// If current is not a directory, add the file to the current directory
 	if (fs->current->contents == NULL)
 	{
 		fs->current->contents = object;
 		return true;
 	}
 
+	// why
 	Object *p = fs->current->contents;
 
 	while (p->next != NULL)
@@ -247,8 +249,11 @@ void pwd_fs(FileSystem *fs, char *path)
 	char array[255][255];
 	int count = 0;
 
+	// fs is a Filesystem type
+	// tmp is the current location
 	Object *tmp = fs->current;
 
+	// if the current location is not root, copy the name to the array
 	while (tmp->parent != NULL)
 	{
 
@@ -256,7 +261,7 @@ void pwd_fs(FileSystem *fs, char *path)
 
 		tmp = tmp->parent;
 	}
-
+	// cat the path
 	strcat(path, "/");
 	for (int i = count - 1; i >= 0; i--)
 	{

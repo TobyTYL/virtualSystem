@@ -31,6 +31,7 @@ int main()
 	{
 		// initialize the path
 		memset(path, 0, 255);
+		// get the current path by using pwd command
 		pwd_fs(&fs, path);
 		// how many user input
 		element_num = 0;
@@ -47,6 +48,7 @@ int main()
 		// user_input is an array
 		readline(user_input);
 		// change the element_num, array, user_input
+		// array got update
 		parse_input(user_input, array, &element_num);
 
 		// user input is empty
@@ -64,12 +66,13 @@ int main()
 			exit(0);
 		}
 
-		// cd
+		// cmd: cd
 		else if (strcmp(cmd, CMD_CD) == 0)
 		{
 			// cd
 			if (element_num == 2)
 			{
+				// if cd_fs true, then this is error
 				if (!cd_fs(&fs, array[1]))
 				{
 					printf("Error: cd failed\n");
@@ -77,9 +80,10 @@ int main()
 			}
 		}
 
-		// echo
+		// cmd:echo
 		else if (strcmp(cmd, CMD_ECHO) == 0)
 		{
+			// if element_num < 2, that's mean there is no file name
 			if (element_num < 2)
 			{
 				printf("Error: echo");
@@ -88,20 +92,20 @@ int main()
 			echo_fs(&fs, array[1]);
 		}
 
-		// help
+		// cmd: help
 		else if (strcmp(cmd, CMD_HELP) == 0)
 		{
 			usage();
 		}
 
-		// ls
+		// cmd: ls
 		else if (strcmp(cmd, CMD_LS) == 0)
 		{
 
 			ls_fs(&fs);
 		}
 
-		// mkdir
+		// cmd: mkdir
 		else if (strcmp(cmd, CMD_MKDIR) == 0)
 		{
 			if (element_num < 2)
@@ -113,13 +117,13 @@ int main()
 			mkdir_fs(&fs, array[1]);
 		}
 
-		// pwd
+		// cmd: pwd
 		else if (strcmp(cmd, CMD_PWD) == 0)
 		{
 			printf("%s\n", path);
 		}
 
-		// rm
+		// cmd: rm
 		else if (strcmp(cmd, CMD_RM) == 0)
 		{
 
@@ -144,7 +148,7 @@ int main()
 	}
 }
 
-// parse the input string
+// This function is to parse the input string into the array
 void parse_input(char *const input, char (*array)[255], int *number)
 {
 
