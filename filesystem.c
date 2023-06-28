@@ -72,7 +72,10 @@ bool mkdir_fs(FileSystem* fs, char* const name) {
 		return false;
 	}
 
-	//нд╪Ч╪пн╙©у
+	//О©╫О©╫О©╫б╦О©╫О©╫з╣О©╫
+	object->parent = fs->current;
+
+	//О©╫д╪О©╫О©╫О©╫н╙О©╫О©╫
 	if (fs->current->contents == NULL) {
 		fs->current->contents = object;
 		return true;
@@ -83,8 +86,6 @@ bool mkdir_fs(FileSystem* fs, char* const name) {
 	while (p->next != NULL) {
 		p = p->next;
 	}
-
-	object->parent = fs->current;
 
 	p->next = object;
 
@@ -127,7 +128,7 @@ bool echo_fs(FileSystem* fs, char* const name) {
 		return false;
 	}
 
-	//нд╪Ч╪пн╙©у
+	//О©╫д╪О©╫О©╫О©╫н╙О©╫О©╫
 	if (fs->current->contents == NULL) {
 		fs->current->contents = object;
 		return true;
@@ -164,23 +165,27 @@ bool cd_fs(FileSystem* fs, char* const path) {
 
 	if (abspath) {
 		tmp = fs->root;
-		token = strtok(NULL, "/");
 	}
 	else {
 		tmp = fs->current;
 	}
 
-	printf("%s\n", token);
+	
 	while (token != NULL) {
-
+		
 		if (strcmp(token, ".") == 0) {
 			//pass
 		}
 		else if (strcmp(token, "..") == 0) {
+
 			if (tmp->parent == NULL) {
+				
 				return false;
 			}
+
 			tmp = tmp->parent;
+
+			
 		}
 		else if (token[0] == '\0') {
 			//pass
@@ -193,6 +198,7 @@ bool cd_fs(FileSystem* fs, char* const path) {
 			}
 
 			tmp = obj;
+			
 		}
 
 		token = strtok(NULL, "/");
@@ -203,3 +209,81 @@ bool cd_fs(FileSystem* fs, char* const path) {
 }
 
 
+void pwd_fs(FileSystem* fs,char* path) {
+
+	char array[255][255];
+	int count = 0;
+
+	Object* tmp = fs->current;
+
+	while (tmp->parent != NULL) {
+
+		strcpy(array[count++], tmp->name);
+
+		tmp = tmp->parent;
+
+	}
+
+	strcat(path, "/");
+	for (int i = count - 1; i >= 0; i--) {
+		strcat(path, array[i]);
+		if (i != 0) {
+			strcat(path, "/");
+		}
+	}
+}
+
+
+void remove_object(Object* obj) {
+
+	if (obj->type == TYPE_FILE) {
+		free(obj);
+		return;
+	}
+	else if (obj->type == TYPE_DIR) {
+
+		Object* p = obj->contents;
+
+		while (p != NULL) {
+
+			remove_object(p);
+
+			p = p->next;
+		}
+		obj->contents = NULL;
+
+	}
+}
+
+
+bool rm_fs(FileSystem* fs, char* const name) {
+
+	bool removed = false;
+	Object* p = fs->current->contents;
+	Object* prev = NULL;
+	while (p != NULL) {
+
+		if (strcmp(p->name, name) == 0) {
+			
+			if (prev == NULL) {
+				fs->current->contents = p->next;
+				remove_object(p);
+				p = fs->current->contents;
+				//prev = NULL;
+			}
+			else {
+				prev->next = p->next;
+				remove_object(p);
+				p = prev->next;
+			}
+			removed = true;
+
+		}
+		else {
+			prev = p;
+			p = p->next;
+		}
+	}
+
+	return removed;
+}

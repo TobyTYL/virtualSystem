@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-#define PROMPT ">>>"
+
 
 
 enum object_type {
@@ -40,7 +40,8 @@ bool mkdir_fs(FileSystem* fs,char* const name);
 bool echo_fs(FileSystem* fs, char* const name);
 void ls_fs(FileSystem* fs);
 bool cd_fs(FileSystem* fs, char* const path);
-
+void pwd_fs(FileSystem* fs, char* path);
+bool rm_fs(FileSystem* fs, char* const name);
 
 Object* search_object(Object* current, char* const name, enum object_type type);
 
